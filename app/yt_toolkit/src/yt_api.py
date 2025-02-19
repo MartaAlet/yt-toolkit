@@ -22,8 +22,8 @@ def get_youtube_object(path_client_secret_file: str | os.PathLike) -> googleapic
     )
     return youtube_object
 
-def collect_videos_matching_query(youtube_object: googleapiclient.discovery.Resource, order: str,
-                                    category_id: str, video_duration: str ="short", start_date:str =None, 
+def collect_videos_matching_query(youtube_object: googleapiclient.discovery.Resource, order: str ="relevance",
+                                    category_id: str =None, video_duration: str ="short", start_date:str =None, 
                                     end_date: str =None, total_videos_to_retrieve: int =500) -> List[Dict]:
     """Collect a list of videos matching a query."""
     videos = []
@@ -35,7 +35,7 @@ def collect_videos_matching_query(youtube_object: googleapiclient.discovery.Reso
             publishedAfter=start_date,
             publishedBefore=end_date,
             part="snippet",
-            maxResults=50,
+            maxResults=min(50, total_videos_to_retrieve - len(videos)),
             videoCategoryId=category_id,
             type="video",
             videoDuration=video_duration,
@@ -44,13 +44,10 @@ def collect_videos_matching_query(youtube_object: googleapiclient.discovery.Reso
         response = request.execute()
         videos += response.get("items", [])
 
-        if "nextPageToken" not in response:
+        if "nextPageToken" not in response or len(videos) >= total_videos_to_retrieve:
             break
 
         nextPageToken = response.get("nextPageToken")
-        remaining_videos = total_videos_to_retrieve - len(videos)
-        if remaining_videos < max_results:
-            max_results = remaining_videos
 
     return videos[:total_videos_to_retrieve]
 

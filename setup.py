@@ -1,11 +1,11 @@
 from setuptools import find_packages, setup
 
-with open("app/README.md", "r") as f:
+with open("README.md", "r") as f:
     long_description = f.read()
 
 setup(
     name="yt_toolkit",
-    version="0.1.4",
+    version="0.1.5",
     description="A library for retrieving and processing YouTube data (API, scraping, transcripts, heatmaps).",
     package_dir={"": "app"},
     packages=find_packages(where="app"),
